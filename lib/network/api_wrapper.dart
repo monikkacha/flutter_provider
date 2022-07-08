@@ -32,6 +32,21 @@ class ApiWrapper {
     dio!.interceptors
         .add(DioCacheManager(CacheConfig(baseUrl: baseUrl)).interceptor);
     dio!.interceptors.add(_logInterceptor);
+    dio!.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (request, handler) {
+          String token = "My Token";
+          request.headers['Authorization'] = 'Bearer $token';
+          return handler.next(request);
+        },
+        onError: (e, handler) async {
+          handler.next(e);
+        },
+        onResponse: (response, handler) {
+          return handler.next(response); // continue
+        },
+      ),
+    );
   }
 
   static Future<ResponseWrapper> _getRequest({required String endPoint}) async {
