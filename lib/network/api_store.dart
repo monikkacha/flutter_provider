@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_provider/api_wrapper.dart';
-import 'package:flutter_provider/todo.dart';
+import 'package:flutter_provider/network/api_wrapper.dart';
+import 'package:flutter_provider/model/todo.dart';
 
 class ApiStore extends ChangeNotifier {
   List<TodoResponse> list = [];
