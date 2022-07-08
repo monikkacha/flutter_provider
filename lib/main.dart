@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_provider/api_store.dart';
+import 'package:flutter_provider/api_wrapper.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    init();
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<ApiStore>(
@@ -40,6 +42,10 @@ class MyApp extends StatelessWidget {
         home: IntroductionaryScreen(),
       ),
     );
+  }
+
+  init() {
+    ApiWrapper.init();
   }
 }
 
@@ -90,7 +96,6 @@ class _MyHomePageState extends State<MyHomePage> {
       if (_controller.position.atEdge) {
         bool isTop = _controller.position.pixels == 0;
         if (!isTop) {
-          // apiStore.fetchMoreData();
           Provider.of<ApiStore>(context, listen: false).fetchMoreData();
         }
       }
@@ -115,8 +120,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   controller: _controller,
                   itemCount: (store.list.length + 1),
                   itemBuilder: (_, index) {
-                    print(
-                        "_apiStore.loadingMoreData : ${store.loadingMoreData}");
                     return (store.list.length == index)
                         ? store.loadingMoreData
                             ? Container(

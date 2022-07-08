@@ -1,9 +1,6 @@
-import 'dart:convert';
-
-import 'package:dio/dio.dart';
-import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_provider/api_wrapper.dart';
 import 'package:flutter_provider/todo.dart';
 
 class ApiStore extends ChangeNotifier {
@@ -19,30 +16,20 @@ class ApiStore extends ChangeNotifier {
 
   bool get loadingMoreData => isLoadingMoreData;
 
-  String baseUrl = "https://jsonplaceholder.typicode.com";
-
-  Dio dio = Dio();
-
-  ApiStore() {
-    init();
-  }
-
-  init() {
-    dio.interceptors
-        .add(DioCacheManager(CacheConfig(baseUrl: baseUrl)).interceptor);
-  }
-
   Future<void> fetchData() async {
     isLoading = true;
     notifyListeners();
-    Response response = await dio.get(
-        "$baseUrl/todos?_limit=$limit&_page=$page",
-        options: buildCacheOptions(Duration(days: 7)));
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      String body = jsonEncode(response.data);
-      list = categoryResponseFromJson(body);
+
+    var tempList1 = await ApiWrapper.getTodoList(limit, page);
+    if (tempList1 != null) {
+      var tempList2 = List.from(list);
+      tempList2.addAll(tempList1);
+      list = List.from(tempList2);
       page++;
+    } else {
+      print('got null from getTodoList');
     }
+
     isLoading = false;
     notifyListeners();
   }
@@ -52,17 +39,16 @@ class ApiStore extends ChangeNotifier {
     isLoadingMoreData = true;
     notifyListeners();
 
-    Response response = await dio.get(
-        "$baseUrl/todos?_limit=$limit&_page=$page",
-        options: buildCacheOptions(Duration(days: 7)));
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      var tempList = List.from(list);
-      String body = jsonEncode(response.data);
-      tempList.addAll(categoryResponseFromJson(body));
-      list = List.from(tempList);
+    var tempList1 = await ApiWrapper.getTodoList(limit, page);
+    if (tempList1 != null) {
+      var tempList2 = List.from(list);
+      tempList2.addAll(tempList1);
+      list = List.from(tempList2);
       page++;
+    } else {
+      print('got null from getTodoList');
     }
+
     isLoadingMoreData = false;
     notifyListeners();
   }
