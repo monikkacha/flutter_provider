@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_provider/api_store.dart';
+import 'package:flutter_provider/network/api_store.dart';
+import 'package:flutter_provider/network/api_wrapper.dart';
+import 'package:flutter_provider/screens/post_screen.dart';
+import 'package:flutter_provider/utils/log_util.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -26,6 +29,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    init();
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<ApiStore>(
@@ -33,6 +37,7 @@ class MyApp extends StatelessWidget {
         )
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: Colors.blue,
@@ -40,6 +45,11 @@ class MyApp extends StatelessWidget {
         home: IntroductionaryScreen(),
       ),
     );
+  }
+
+  init() {
+    ApiWrapper.init();
+    loggerConfigure();
   }
 }
 
@@ -52,10 +62,23 @@ class IntroductionaryScreen extends StatelessWidget {
       appBar: AppBar(),
       body: Container(
         child: Center(
-          child: ElevatedButton(
-            child: Text("NEXT"),
-            onPressed: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => MyHomePage())),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                child: Text("GET DATA"),
+                onPressed: () => Navigator.push(
+                    context, MaterialPageRoute(builder: (_) => MyHomePage())),
+              ),
+              SizedBox(
+                height: 30.0,
+              ),
+              ElevatedButton(
+                child: Text("POST DATA "),
+                onPressed: () => Navigator.push(
+                    context, MaterialPageRoute(builder: (_) => PostScreen())),
+              ),
+            ],
           ),
         ),
       ),
@@ -90,7 +113,6 @@ class _MyHomePageState extends State<MyHomePage> {
       if (_controller.position.atEdge) {
         bool isTop = _controller.position.pixels == 0;
         if (!isTop) {
-          // apiStore.fetchMoreData();
           Provider.of<ApiStore>(context, listen: false).fetchMoreData();
         }
       }
@@ -115,8 +137,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   controller: _controller,
                   itemCount: (store.list.length + 1),
                   itemBuilder: (_, index) {
-                    print(
-                        "_apiStore.loadingMoreData : ${store.loadingMoreData}");
                     return (store.list.length == index)
                         ? store.loadingMoreData
                             ? Container(
